@@ -150,27 +150,24 @@
     border: none !important;
     box-shadow: none !important;
 }
-  .flatpickr-day {
-    height: 58px !important;
-    max-height: 58px !important;
-    line-height: 26px !important;
-
-    display: flex !important;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-
-    padding-top: 6px;
+.flatpickr-day {
+    width: 48px !important;
+    height: 48px !important;
+    line-height: 22px !important;
+    position: relative;
+    padding-top: 4px;
     box-sizing: border-box;
 }
-  .day-price {
-    font-size: 10px;
-    color: #888;
+.day-price {
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: #8c8c8c;
+    white-space: nowrap;
     line-height: 1;
-    margin-top: auto;
-    margin-bottom: 5px;
     font-weight: 500;
-    pointer-events: none;
 }
   .flatpickr-day.today {
     border: 2px solid #444 !important;
