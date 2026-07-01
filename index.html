@@ -492,8 +492,13 @@ priceDetailsEl.innerText = detailsText;
 
     const priceDiv = document.createElement("div");
 priceDiv.className = "day-price";
-priceDiv.innerText = ...
-day.appendChild(priceDiv);
+
+priceDiv.innerText =
+    (price % 1000 === 0)
+        ? (price / 1000) + " тыс."
+        : (price / 1000).toFixed(1).replace(".", ",") + " тыс.";
+
+dayElem.appendChild(priceDiv);
 
 },
       onChange(selectedDates) {
