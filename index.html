@@ -176,6 +176,27 @@
     color: #222 !important;
     font-weight: 600;
 }
+  /* Начало диапазона */
+.flatpickr-day.startRange,
+.flatpickr-day.startRange:hover {
+    border-radius: 10px 0 0 10px !important;
+}
+
+/* Конец диапазона */
+.flatpickr-day.endRange,
+.flatpickr-day.endRange:hover {
+    border-radius: 0 10px 10px 0 !important;
+}
+
+/* Если выбрана только одна дата */
+.flatpickr-day.startRange.endRange {
+    border-radius: 10px !important;
+}
+
+/* Середина диапазона */
+.flatpickr-day.inRange {
+    border-radius: 0 !important;
+}
   /* Полностью скрыть даты соседних месяцев */
 .flatpickr-day.prevMonthDay,
 .flatpickr-day.nextMonthDay {
