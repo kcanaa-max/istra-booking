@@ -491,13 +491,20 @@ priceDetailsEl.innerText = detailsText;
     const price = getNightPrice(dayElem.dateObj);
 
     const priceDiv = document.createElement("div");
-    priceDiv.className = "day-price";
-    priceDiv.innerText =
-    (price % 1000 === 0)
+priceDiv.className = "day-price";
+
+priceDiv.textContent =
+    price % 1000 === 0
         ? (price / 1000) + " тыс."
         : (price / 1000).toFixed(1).replace(".", ",") + " тыс.";
 
-    dayElem.appendChild(priceDiv);
+day.style.display = "flex";
+day.style.flexDirection = "column";
+day.style.justifyContent = "space-between";
+day.style.alignItems = "center";
+
+day.appendChild(priceDiv);
+
 
 },
       onChange(selectedDates) {
