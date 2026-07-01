@@ -141,13 +141,19 @@
   margin: 0 auto !important;
 }
 
-  .flatpickr-day.flatpickr-disabled,
-  .flatpickr-day.flatpickr-disabled:hover {
-    background: #f1f1f1 !important;
-    color: #bbb !important;
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+    background: transparent !important;
+    color: #b8b8b8 !important;
     text-decoration: line-through;
     cursor: not-allowed;
-  }
+    border: none !important;
+    box-shadow: none !important;
+}
+  .flatpickr-day {
+    border-radius: 8px !important;
+    background: transparent;
+}
   .flatpickr-day.today {
   border: 2px solid #444 !important;
   border-radius: 50% !important;
