@@ -207,6 +207,28 @@
     background: transparent !important;
     box-shadow: none !important;
 }
+  /* Выбранные даты */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    border-radius: 10px !important;
+}
+
+/* Полоса между датами */
+.flatpickr-day.inRange {
+    border-radius: 0 !important;
+}
+
+/* Чтобы края полосы были ровными */
+.flatpickr-day.startRange {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.flatpickr-day.endRange {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
 </style>
 
 <div class="booking-app">
