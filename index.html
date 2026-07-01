@@ -152,26 +152,24 @@
 }
 .flatpickr-day {
     width: 48px !important;
-    height: 58px !important;
+    height: 54px !important;
 
-    line-height: 18px !important;
-    position: relative;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
 
-    padding-top: 2px;
+    align-items: center;
+
     box-sizing: border-box;
+    padding: 4px 0;
 }
 
 .day-price {
-    position: absolute;
-    left: 50%;
-    bottom: 12px;
-
-    transform: translateX(-50%);
     font-size: 8px;
     color: #8c8c8c;
-    white-space: nowrap;
     line-height: 1;
     font-weight: 500;
+    white-space: nowrap;
 }
 
   .flatpickr-day.today {
