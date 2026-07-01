@@ -1,1 +1,552 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
 
+<style>
+  .booking-app {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #222;
+  }
+
+  .booking-app h1 {
+    font-size: 22px;
+    margin: 0 0 14px;
+    color: var(--tg-theme-text-color);
+  }
+
+  .booking-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .booking-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+
+  .booking-warning {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #c0392b;
+    line-height: 1.4;
+    min-height: 20px;
+    white-space: pre-line;
+  }
+
+  .booking-price {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .booking-dates {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #333;
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+
+  .booking-btn {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--tg-theme-button-color, #222);
+    color: var(--tg-theme-button-text-color, #fff);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  .booking-btn:active {
+    transform: scale(0.98);
+    opacity: 0.96;
+  }
+
+  .booking-btn:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+  }
+
+  .booking-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .booking-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    color: #222;
+  }
+
+  .booking-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+  }
+
+  .booking-option input {
+    width: 18px;
+    height: 18px;
+  }
+
+  #calendarInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flatpickr-calendar.inline {
+  display: block !important;
+  width: max-content !important;
+  max-width: 100%;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+  .flatpickr-days {
+    width: auto !important;
+  }
+
+  .dayContainer {
+    width: auto !important;
+    min-width: auto !important;
+    max-width: auto !important;
+  }
+
+.flatpickr-rContainer {
+  width: auto !important;
+  margin: 0 auto !important;
+}
+
+  .flatpickr-day.flatpickr-disabled,
+  .flatpickr-day.flatpickr-disabled:hover {
+    background: #f1f1f1 !important;
+    color: #bbb !important;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  .flatpickr-day.today {
+  border: 2px solid #444 !important;
+  border-radius: 50% !important;
+  color: #222 !important;
+  font-weight: 600;
+}
+</style>
+
+<div class="booking-app">
+  <h1>Бронирование дома 🌲</h1>
+
+  <div class="booking-card">
+    <input id="calendarInput" type="text">
+    <div class="booking-info">Выбери даты заезда и выезда</div>
+    <div class="booking-dates" id="selectedDates">Выбери даты</div>
+    <div class="booking-warning" id="warningText"></div>
+  </div>
+
+  <div class="booking-card">
+    <label class="booking-option">
+      <input type="checkbox" id="banya">
+      <span>Баня +8 000 ₽</span>
+    </label>
+  </div>
+
+  <div class="booking-card">
+    <div style="font-size:16px; margin-bottom:10px;">Количество гостей</div>
+    <select id="guests" class="booking-input" style="margin-top:0;">
+      <option value="2">2 гостя</option>
+      <option value="3">3 гостя</option>
+      <option value="4">4 гостя</option>
+    </select>
+    <div class="booking-info">
+      Базовая цена указана за 2 гостей.  
+      Доплата за 3-го и 4-го гостя — 1 500 ₽ в сутки за человека.
+    </div>
+  </div>
+
+  <div class="booking-card">
+  <div class="booking-price" id="price">Стоимость: —</div>
+  <div class="booking-info" id="priceDetails"></div>
+  </div>
+
+  <div class="booking-card">
+    <input id="name" class="booking-input" type="text" placeholder="Ваше имя">
+    <input id="comment" class="booking-input" type="text" placeholder="Комментарий (поздний выезд и т.д.)">
+  </div>
+
+  <div style="padding: 0 16px 20px;">
+    <button class="booking-btn" id="bookBtn">Оставить заявку</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", function () {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  const CALENDAR_ID = "3s6rt871r7d8dtk0n61njgcj4b02emst@import.calendar.google.com";
+  const API_KEY = "AIzaSyAYMSnK3P0ljVrGMNCnqpmDEn6qSRw6B1M";
+  const TELEGRAM_USERNAME = "ksyunmsk";
+
+  const minNights = 2;
+  const pricePerNight = 19000;
+  const extraGuestPrice = 1500;
+  const banyaPrice = 8000;
+  const discounts = [
+  { nights: 3, percent: 5 },
+  { nights: 5, percent: 10 },
+  { nights: 6, percent: 15 }
+];
+  const specialPrices = {
+  "2026-12-31": { price: 60000, label: "Новогодний тариф 🎄" },
+  "2027-01-01": { price: 60000, label: "Новогодний тариф 🎄" },
+  "2027-03-08": { price: 18000, label: "Праздничный тариф 🌸" },
+  "2026-06-12": { price: 18000, label: "праздничный тариф 🌸" },
+  "2026-06-13": { price: 18000 }
+};
+  function getDiscountPercent(nights) {
+  let percent = 0;
+
+  discounts.forEach(d => {
+    if (nights >= d.nights) {
+      percent = d.percent;
+    }
+  });
+
+  return percent;
+}
+  function getNightPrice(date) {
+  const key = toYMD(date);
+  return specialPrices[key]?.price || pricePerNight;
+}
+  function getPriceDetails() {
+  if (!checkin || !checkout) return "";
+
+  const details = [];
+  let current = new Date(
+    checkin.getFullYear(),
+    checkin.getMonth(),
+    checkin.getDate(),
+    12, 0, 0
+  );
+
+  while (current < checkout) {
+    const key = toYMD(current);
+   if (specialPrices[key] && specialPrices[key].label) {
+  details.push(`${formatDate(current)} — ${specialPrices[key].label}`);
+}
+    current.setDate(current.getDate() + 1);
+  }
+
+  return details.join("\n");
+}
+
+  const selectedDatesEl = document.getElementById("selectedDates");
+  const warningEl = document.getElementById("warningText");
+  const priceEl = document.getElementById("price");
+  const priceDetailsEl = document.getElementById("priceDetails");
+  const banyaEl = document.getElementById("banya");
+  const guestsEl = document.getElementById("guests");
+  const bookBtn = document.getElementById("bookBtn");
+  const nameEl = document.getElementById("name");
+  const commentEl = document.getElementById("comment");
+
+  let fp = null;
+  let checkin = null;
+  let checkout = null;
+  let selectedNights = 0;
+
+  function parseLocalDate(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  }
+
+  function toYMD(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function formatDate(date) {
+    const d = String(date.getDate()).padStart(2, "0");
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const y = date.getFullYear();
+    return `${d}.${m}.${y}`;
+  }
+
+  function expandDates(startStr, endStr) {
+    const dates = [];
+    let current = parseLocalDate(startStr);
+    const end = parseLocalDate(endStr);
+
+    while (current < end) {
+      dates.push(toYMD(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function getTotal() {
+  const guests = Number(guestsEl.value || 2);
+  const extraGuests = Math.max(0, guests - 2);
+
+  let total = 0;
+
+  let current = new Date(
+    checkin.getFullYear(),
+    checkin.getMonth(),
+    checkin.getDate(),
+    12, 0, 0
+  );
+
+  while (current < checkout) {
+    total += getNightPrice(current);
+
+    // доплата за гостей
+    total += extraGuests * extraGuestPrice;
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  // скидка
+  const discountPercent = getDiscountPercent(selectedNights);
+  if (discountPercent > 0) {
+    total = total * (1 - discountPercent / 100);
+  }
+
+  // баня
+  if (banyaEl.checked) total += banyaPrice;
+
+  return Math.round(total);
+}
+
+  function resetPrice() {
+  priceEl.innerText = "Стоимость: —";
+  priceDetailsEl.innerText = "";
+}
+
+  function updateBookingState() {
+    if (!checkin || !checkout) {
+      selectedNights = 0;
+      resetPrice();
+      warningEl.innerText = "";
+      bookBtn.disabled = false;
+      return;
+    }
+
+    selectedNights = Math.round((checkout.getTime() - checkin.getTime()) / 86400000);
+
+    if (selectedNights < minNights) {
+      resetPrice();
+      warningEl.innerText = "Минимальный срок бронирования — 2 ночи.";
+      bookBtn.disabled = true;
+      return;
+    }
+
+    priceEl.innerText = "Стоимость: " + getTotal().toLocaleString("ru-RU") + " ₽";
+   let detailsText = getPriceDetails();
+
+const discountPercent = getDiscountPercent(selectedNights);
+if (discountPercent > 0) {
+  detailsText += (detailsText ? "\n" : "") +
+    `Скидка ${discountPercent}% за ${selectedNights} ночи ✨`;
+}
+
+priceDetailsEl.innerText = detailsText;
+    warningEl.innerText = "";
+    bookBtn.disabled = false;
+  }
+
+  function initCalendar(disabledDates) {
+    if (typeof flatpickr === "undefined") {
+      selectedDatesEl.innerText = "Календарь не загрузился";
+      return;
+    }
+
+    if (fp) fp.destroy();
+
+    fp = flatpickr("#calendarInput", {
+      mode: "range",
+      inline: true,
+      minDate: "today",
+      dateFormat: "Y-m-d",
+      disable: disabledDates || [],
+      locale: flatpickr.l10ns.ru,
+      onChange(selectedDates) {
+        warningEl.innerText = "";
+
+        if (selectedDates.length === 0) {
+          checkin = null;
+          checkout = null;
+          selectedDatesEl.innerText = "Выбери даты";
+          updateBookingState();
+          return;
+        }
+
+        if (selectedDates.length === 1) {
+          checkin = new Date(
+            selectedDates[0].getFullYear(),
+            selectedDates[0].getMonth(),
+            selectedDates[0].getDate(),
+            12, 0, 0
+          );
+          checkout = null;
+          selectedDatesEl.innerText =
+            "Заезд: " + formatDate(checkin) + "\nТеперь выбери дату выезда";
+          resetPrice();
+          bookBtn.disabled = false;
+          return;
+        }
+
+        if (selectedDates.length === 2) {
+          checkin = new Date(
+            selectedDates[0].getFullYear(),
+            selectedDates[0].getMonth(),
+            selectedDates[0].getDate(),
+            12, 0, 0
+          );
+          checkout = new Date(
+            selectedDates[1].getFullYear(),
+            selectedDates[1].getMonth(),
+            selectedDates[1].getDate(),
+            12, 0, 0
+          );
+
+          selectedDatesEl.innerText =
+            "Заезд: " + formatDate(checkin) + "\nВыезд: " + formatDate(checkout);
+
+          updateBookingState();
+        }
+      }
+    });
+  }
+
+  async function loadBusyDates() {
+    const now = new Date();
+    const timeMin = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const timeMax = new Date(now.getFullYear(), now.getMonth() + 12, 1).toISOString();
+
+    const url =
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events` +
+      `?key=${API_KEY}` +
+      `&singleEvents=true` +
+      `&orderBy=startTime` +
+      `&timeMin=${encodeURIComponent(timeMin)}` +
+      `&timeMax=${encodeURIComponent(timeMax)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error?.message || "Ошибка загрузки календаря");
+    }
+
+    const busy = [];
+
+    (data.items || []).forEach(event => {
+      if (event.start?.date && event.end?.date) {
+        busy.push(...expandDates(event.start.date, event.end.date));
+      } else if (event.start?.dateTime && event.end?.dateTime) {
+        const startDate = event.start.dateTime.slice(0, 10);
+        const endDate = event.end.dateTime.slice(0, 10);
+
+        const start = parseLocalDate(startDate);
+        const end = parseLocalDate(endDate);
+
+        if (toYMD(start) === toYMD(end)) {
+          busy.push(toYMD(start));
+        } else {
+          end.setDate(end.getDate() + 1);
+          busy.push(...expandDates(startDate, toYMD(end)));
+        }
+      }
+    });
+
+    return [...new Set(busy)];
+  }
+  
+  flatpickr.l10ns.ru.firstDayOfWeek = 1;
+  initCalendar([]);
+
+  loadBusyDates()
+    .then((busyDates) => {
+      initCalendar(busyDates);
+      selectedDatesEl.innerText = "Выбери даты";
+      warningEl.innerText = busyDates.length ? "" : "Занятые даты не найдены";
+    })
+    .catch((e) => {
+      console.error(e);
+      selectedDatesEl.innerText = "Выбери даты";
+      warningEl.innerText = "Не удалось загрузить занятые даты";
+    });
+
+  banyaEl.addEventListener("change", updateBookingState);
+  guestsEl.addEventListener("change", updateBookingState);
+
+  bookBtn.addEventListener("click", function () {
+    bookBtn.classList.remove("tap-anim");
+    void bookBtn.offsetWidth;
+    bookBtn.classList.add("tap-anim");
+  });
+
+  bookBtn.onclick = () => {
+    if (!checkin || !checkout) {
+      alert("Выбери даты заезда и выезда");
+      return;
+    }
+
+    if (selectedNights < minNights) {
+      warningEl.innerText = "Минимальный срок бронирования — 2 ночи.";
+      return;
+    }
+
+    const name = nameEl.value.trim() || "—";
+    const comment = commentEl.value.trim() || "—";
+    const guests = guestsEl.value;
+    const total = getTotal();
+
+    const text =
+`Здравствуйте! 👋
+
+Хочу забронировать дом 🌲
+
+Заезд: ${formatDate(checkin)}
+Выезд: ${formatDate(checkout)}
+Ночей: ${selectedNights}
+Гостей: ${guests}
+${banyaEl.checked ? "Баня: да (+8 000 ₽)\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
+
+Имя: ${name}
+Комментарий: ${comment}`;
+
+    const url = `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(text);
+    window.open(url, "_blank");
+  };
+});
+</script>
