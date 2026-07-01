@@ -154,6 +154,16 @@
   color: #222 !important;
   font-weight: 600;
 }
+  /* Полностью скрыть даты соседних месяцев */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
 </style>
 
 <div class="booking-app">
