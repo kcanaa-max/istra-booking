@@ -291,8 +291,6 @@ window.addEventListener("load", function () {
     tg.expand();
   }
 
-  const CALENDAR_ID = "3s6rt871r7d8dtk0n61njgcj4b02emst@import.calendar.google.com";
-  const API_KEY = "AIzaSyAYMSnK3P0ljVrGMNCnqpmDEn6qSRw6B1M";
   const TELEGRAM_USERNAME = "ksyunmsk";
 
   const minNights = 2;
@@ -553,48 +551,55 @@ dayElem.appendChild(priceDiv);
   }
 
   async function loadBusyDates() {
-    const now = new Date();
-    const timeMin = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const timeMax = new Date(now.getFullYear(), now.getMonth() + 12, 1).toISOString();
 
-    const url =
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events` +
-      `?key=${API_KEY}` +
-      `&singleEvents=true` +
-      `&orderBy=startTime` +
-      `&timeMin=${encodeURIComponent(timeMin)}` +
-      `&timeMax=${encodeURIComponent(timeMax)}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
+    const res = await fetch(
+        "https://www.avito.ru/calendars-export/77/70/7771462570.ics"
+    );
 
     if (!res.ok) {
-      throw new Error(data?.error?.message || "Ошибка загрузки календаря");
+        throw new Error("Не удалось загрузить календарь");
     }
 
+    const text = await res.text();
+    console.log(text);
     const busy = [];
 
-    (data.items || []).forEach(event => {
-      if (event.start?.date && event.end?.date) {
-        busy.push(...expandDates(event.start.date, event.end.date));
-      } else if (event.start?.dateTime && event.end?.dateTime) {
-        const startDate = event.start.dateTime.slice(0, 10);
-        const endDate = event.end.dateTime.slice(0, 10);
+    const events = text.split("BEGIN:VEVENT");
 
-        const start = parseLocalDate(startDate);
-        const end = parseLocalDate(endDate);
+    events.forEach(event => {
 
-        if (toYMD(start) === toYMD(end)) {
-          busy.push(toYMD(start));
-        } else {
-          end.setDate(end.getDate() + 1);
-          busy.push(...expandDates(startDate, toYMD(end)));
-        }
-      }
+        const startMatch = event.match(/DTSTART.*:(\d{8})/);
+        const endMatch = event.match(/DTEND.*:(\d{8})/);
+
+        if (!startMatch || !endMatch) return;
+
+        const start =
+            startMatch[1].slice(0,4) + "-" +
+            startMatch[1].slice(4,6) + "-" +
+            startMatch[1].slice(6,8);
+
+        const endDate = new Date(
+            endMatch[1].slice(0,4),
+            endMatch[1].slice(4,6) - 1,
+            endMatch[1].slice(6,8)
+        );
+
+        // DTEND = день выезда, поэтому убираем один день
+        endDate.setDate(endDate.getDate() - 1);
+
+        const end =
+            endDate.getFullYear() + "-" +
+            String(endDate.getMonth() + 1).padStart(2, "0") + "-" +
+            String(endDate.getDate()).padStart(2, "0");
+
+        busy.push(...expandDates(start, end));
+
     });
 
+  console.log(busy);
     return [...new Set(busy)];
-  }
+
+}
   
   flatpickr.l10ns.ru.firstDayOfWeek = 1;
   initCalendar([]);
