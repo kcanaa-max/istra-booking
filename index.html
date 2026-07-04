@@ -386,7 +386,7 @@ window.addEventListener("load", function () {
     let current = parseLocalDate(startStr);
     const end = parseLocalDate(endStr);
 
-    while (current < end) {
+    while (current <= end) {
       dates.push(toYMD(current));
       current.setDate(current.getDate() + 1);
     }
