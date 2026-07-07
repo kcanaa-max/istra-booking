@@ -601,10 +601,11 @@ dayElem.appendChild(priceDiv);
 
 }
   
-  flatpickr.l10ns.ru.firstDayOfWeek = 1;
-  initCalendar([]);
+flatpickr.l10ns.ru.firstDayOfWeek = 1;
 
-  loadBusyDates()
+selectedDatesEl.innerText = "Загружаем свободные даты…";
+
+loadBusyDates()
     .then((busyDates) => {
       initCalendar(busyDates);
       selectedDatesEl.innerText = "Выбери даты";
