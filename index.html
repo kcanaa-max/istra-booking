@@ -236,6 +236,30 @@
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
 }
+  .guests-select-wrap {
+  position: relative;
+}
+
+.guests-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #999;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.guests-select {
+  margin-top: 0;
+  padding-left: 58px;
+}
 </style>
 
 <div class="booking-app">
@@ -253,11 +277,24 @@
       <input type="checkbox" id="banya">
       <span>Баня +8 000 ₽</span>
     </label>
+    <label class="booking-option" style="margin-top:10px;">
+      <input type="checkbox" id="kupel">
+      <span>Купель - входит в стоимость</span>
+    </label>
   </div>
 
   <div class="booking-card">
     <div style="font-size:16px; margin-bottom:10px;">Количество гостей</div>
-    <select id="guests" class="booking-input" style="margin-top:0;">
+  <div class="guests-select-wrap">
+
+    <svg class="guests-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+     <select id="guests" class="booking-input guests-select">
+      <option value="1">1 гость</option>
       <option value="2">2 гостя</option>
       <option value="3">3 гостя</option>
       <option value="4">4 гостя</option>
@@ -297,6 +334,7 @@ window.addEventListener("load", function () {
   const pricePerNight = 20000;
   const extraGuestPrice = 1500;
   const banyaPrice = 8000;
+  const kupelPrice = 0;
   const discounts = [
   { nights: 3, percent: 5 },
   { nights: 5, percent: 10 },
@@ -423,6 +461,7 @@ window.addEventListener("load", function () {
 
   // баня
   if (banyaEl.checked) total += banyaPrice;
+  if (kupelEl.checked) total += kupelPrice;
 
   return Math.round(total);
 }
@@ -651,7 +690,7 @@ loadBusyDates()
 Выезд: ${formatDate(checkout)}
 Ночей: ${selectedNights}
 Гостей: ${guests}
-${banyaEl.checked ? "Баня: да (+8 000 ₽)\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
+${banyaEl.checked ? "Баня: да (+8 000 ₽)\n" : ""}${kupelEl.checked ? "Купель: да\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
 
 Имя: ${name}
 Комментарий: ${comment}`;
