@@ -391,6 +391,7 @@ window.addEventListener("load", function () {
   const priceEl = document.getElementById("price");
   const priceDetailsEl = document.getElementById("priceDetails");
   const banyaEl = document.getElementById("banya");
+  const kupelEl = document.getElementById("kupel");
   const guestsEl = document.getElementById("guests");
   const bookBtn = document.getElementById("bookBtn");
   const nameEl = document.getElementById("name");
@@ -658,6 +659,7 @@ loadBusyDates()
     });
 
   banyaEl.addEventListener("change", updateBookingState);
+  kupelEl.addEventListener("change", updateBookingState);
   guestsEl.addEventListener("change", updateBookingState);
 
   bookBtn.addEventListener("click", function () {
