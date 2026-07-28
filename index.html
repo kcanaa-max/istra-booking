@@ -332,6 +332,7 @@ window.addEventListener("load", function () {
   const TELEGRAM_USERNAME = "ksyunmsk";
 
   const minNights = 2;
+  const holidayMinNights = 3;
   const pricePerNight = 20000;
   const extraGuestPrice = 1500;
   const banyaPrice = 8000;
@@ -349,6 +350,21 @@ window.addEventListener("load", function () {
   "2027-02-23": { price: 19000, label: "праздничный тариф 🌸" },
   "2026-06-13": { price: 18000 }
 };
+
+  function isHolidayMinStay(checkin, checkout) {
+    if (!checkin || !checkout) return false;
+    let current=new Date(checkin.getFullYear(),checkin.getMonth(),checkin.getDate(),12);
+    while(current<checkout){
+      const m=current.getMonth(), d=current.getDate();
+      if((m===11&&(d===30||d===31))||(m===0&&d>=1&&d<=7)) return true;
+      current.setDate(current.getDate()+1);
+    }
+    return false;
+  }
+  function requiredMinNights(){
+    return isHolidayMinStay(checkin,checkout)?holidayMinNights:minNights;
+  }
+
   function getDiscountPercent(nights) {
   let percent = 0;
 
@@ -484,9 +500,13 @@ window.addEventListener("load", function () {
 
     selectedNights = Math.round((checkout.getTime() - checkin.getTime()) / 86400000);
 
-    if (selectedNights < minNights) {
+    const minRequired = requiredMinNights();
+
+    if (selectedNights < minRequired) {
       resetPrice();
-      warningEl.innerText = "Минимальный срок бронирования — 2 ночи.";
+      warningEl.innerText = isHolidayMinStay(checkin, checkout)
+        ? "На даты с 30 декабря по 7 января минимальный срок бронирования — 3 ночи. 🎄"
+        : "Минимальный срок бронирования — 2 ночи.";
       bookBtn.disabled = true;
       return;
     }
@@ -674,8 +694,12 @@ loadBusyDates()
       return;
     }
 
-    if (selectedNights < minNights) {
-      warningEl.innerText = "Минимальный срок бронирования — 2 ночи.";
+    const minRequired = requiredMinNights();
+
+    if (selectedNights < minRequired) {
+      warningEl.innerText = isHolidayMinStay(checkin, checkout)
+        ? "На даты с 30 декабря по 7 января минимальный срок бронирования — 3 ночи. 🎄"
+        : "Минимальный срок бронирования — 2 ночи.";
       return;
     }
 
