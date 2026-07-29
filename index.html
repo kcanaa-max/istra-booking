@@ -353,8 +353,8 @@ window.addEventListener("load", function () {
   "2027-01-06": { price: 25000, label: "Новогодний тариф 🎄" },
   "2027-01-07": { price: 25000, label: "Новогодний тариф 🎄" },
   "2027-03-08": { price: 19000, label: "Праздничный тариф 🌸" },
-  "2027-02-14": { price: 19000, label: "праздничный тариф 🌸" },
-  "2027-02-23": { price: 19000, label: "праздничный тариф 🌸" },
+  "2027-02-14": { price: 19000, label: "День влюбленных 🌸" },
+  "2027-02-23": { price: 19000, label: "Праздничный тариф 🌸" },
   "2026-06-13": { price: 18000 }
 };
 
@@ -387,10 +387,11 @@ window.addEventListener("load", function () {
   const key = toYMD(date);
   return specialPrices[key]?.price || pricePerNight;
 }
-  function getPriceDetails() {
+function getPriceDetails() {
   if (!checkin || !checkout) return "";
 
-  const details = [];
+  const labels = new Set();
+
   let current = new Date(
     checkin.getFullYear(),
     checkin.getMonth(),
@@ -400,13 +401,15 @@ window.addEventListener("load", function () {
 
   while (current < checkout) {
     const key = toYMD(current);
-   if (specialPrices[key] && specialPrices[key].label) {
-  details.push(`${formatDate(current)} — ${specialPrices[key].label}`);
-}
+
+    if (specialPrices[key]?.label) {
+      labels.add(specialPrices[key].label);
+    }
+
     current.setDate(current.getDate() + 1);
   }
 
-  return details.join("\n");
+  return [...labels].join("\n");
 }
 
   const selectedDatesEl = document.getElementById("selectedDates");
