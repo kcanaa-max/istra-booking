@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+
+<style>
+  .booking-app {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #222;
+  }
+
+  .booking-app h1 {
+    font-size: 22px;
+    margin: 0 0 14px;
+    color: var(--tg-theme-text-color);
+  }
+
+  .booking-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .booking-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    line-height: 1.3;
+}
+
+.booking-dates {
+    margin-top: 2px;
+    font-size: 15px;
+    color: #333;
+    line-height: 1.3;
+    white-space: pre-line;
+}
+
+
+  .booking-warning {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #c0392b;
+    line-height: 1.4;
+    min-height: 20px;
+    white-space: pre-line;
+  }
+
+  .booking-price {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .booking-btn {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--tg-theme-button-color, #222);
+    color: var(--tg-theme-button-text-color, #fff);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  .booking-btn:active {
+    transform: scale(0.98);
+    opacity: 0.96;
+  }
+
+  .booking-btn:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+  }
+
+  .booking-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .booking-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fff;
+    color: #222;
+  }
+
+  .booking-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+  }
+
+  .booking-option input {
+    width: 18px;
+    height: 18px;
+  }
+
+  #calendarInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flatpickr-calendar.inline {
+  display: block !important;
+  width: max-content !important;
+  max-width: 100%;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+  .flatpickr-days {
+    width: auto !important;
+  }
+
+  .dayContainer {
+    width: auto !important;
+    min-width: auto !important;
+    max-width: auto !important;
+  }
+
+.flatpickr-rContainer {
+  width: auto !important;
+  margin: 0 auto !important;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+    background: transparent !important;
+    color: #b8b8b8 !important;
+    text-decoration: line-through;
+    cursor: not-allowed;
+    border: none !important;
+    box-shadow: none !important;
+}
+.flatpickr-day {
+    width: 48px !important;
+    height: 42px !important;
+
+    line-height: 18px !important;
+    position: relative;
+
+    padding-top: 2px;
+    box-sizing: border-box;
+}
+
+.day-price {
+    position: absolute;
+    left: 50%;
+    top: 23px;
+    bottom: auto;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: #8c8c8c;
+    white-space: nowrap;
+    line-height: 1;
+    font-weight: 500;
+}
+
+  .flatpickr-day.today {
+    border: 2px solid #444 !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: #222 !important;
+    font-weight: 600;
+}
+  /* Начало диапазона */
+.flatpickr-day.startRange,
+.flatpickr-day.startRange:hover {
+    border-radius: 10px 0 0 10px !important;
+}
+
+/* Конец диапазона */
+.flatpickr-day.endRange,
+.flatpickr-day.endRange:hover {
+    border-radius: 0 10px 10px 0 !important;
+}
+
+/* Если выбрана только одна дата */
+.flatpickr-day.startRange.endRange {
+    border-radius: 10px !important;
+}
+
+/* Середина диапазона */
+.flatpickr-day.inRange {
+    border-radius: 0 !important;
+}
+  /* Полностью скрыть даты соседних месяцев */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+  /* Выбранные даты */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    border-radius: 10px !important;
+}
+
+/* Полоса между датами */
+.flatpickr-day.inRange {
+    border-radius: 0 !important;
+}
+
+/* Чтобы края полосы были ровными */
+.flatpickr-day.startRange {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.flatpickr-day.endRange {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+  .guests-select-wrap {
+  position: relative;
+}
+
+.guests-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #999;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.guests-select {
+  margin-top: 0;
+  padding-left: 58px;
+}
+
+/* Istra Village Hills — boutique dark theme */
+:root{color-scheme:dark;--tg-theme-text-color:#f4f0e8;--tg-theme-button-color:#b89968;--tg-theme-button-text-color:#171a18}
+*{box-sizing:border-box}body{margin:0;background:#101615;color:#f4f0e8}
+.booking-app{max-width:520px;padding:0 15px 35px;color:#f4f0e8}
+.booking-app h1{color:#f4f0e8;font-size:22px;letter-spacing:.3px}
+.booking-card{background:#1b2421;border:1px solid #33403a;border-radius:20px;padding:18px;box-shadow:0 8px 28px #0003}
+.booking-info{color:#aab7ac}.booking-dates{color:#f5e9d5;font-weight:600}
+.booking-price{color:#f4dfb7;font-size:22px}.booking-input{background:#121a17;border:1px solid #46534a;color:#f6f1e7}
+.booking-btn{background:#c5a475;color:#161b18;border-radius:14px}
+.hero{position:relative;height:360px;margin:0 -15px 22px;overflow:hidden;background:#24302c}
+.hero img{width:100%;height:100%;object-fit:cover;object-position:center}
+.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,#101615 99%)}
+.hero-content{position:absolute;bottom:24px;left:22px;right:22px;z-index:1}
+.hero-kicker{color:#ead1a7;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700}
+.hero-title{font-family:Georgia,serif;font-size:31px;line-height:1.12;margin:9px 0;color:white}
+.hero-sub{font-size:13px;color:#e1e3dc;margin:0 0 16px}
+.hero-link{display:inline-block;padding:11px 19px;background:#c5a475;color:#171c19;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px}
+.section-title{font-size:18px;font-weight:700;margin:0 0 15px;color:#f5f0e6}
+.amenity{display:flex;align-items:center;gap:12px;width:100%;padding:12px 0;border-top:1px solid #39433c;color:inherit;cursor:pointer}
+.amenity:first-of-type{border-top:0}.amenity img{width:64px;height:64px;border-radius:13px;object-fit:cover;flex:none}
+.amenity-main{flex:1;min-width:0}.amenity-name{font-weight:700;font-size:16px}.amenity-desc{font-size:12px;color:#aab7ac;margin-top:5px}
+.amenity-price{color:#f0d5a6;font-weight:700;font-size:13px;white-space:nowrap}
+.amenity input{accent-color:#c5a475;width:18px;height:18px;flex:none}
+.amenity:has(input:checked) .amenity-name{color:#e9c58e}
+.amenity-static{cursor:default}
+.flatpickr-calendar.inline{background:#1b2421;color:#f4f0e8;max-width:100%!important}
+.flatpickr-months,.flatpickr-weekdays{background:#1b2421}.flatpickr-current-month,.flatpickr-current-month input.cur-year,.flatpickr-current-month .flatpickr-monthDropdown-months,.flatpickr-weekday{color:#f4f0e8!important;background:#1b2421!important}
+.flatpickr-day{color:#f3f0e9!important;border-color:transparent!important}
+.flatpickr-day:hover{background:#3c4c42!important}.flatpickr-day.today{color:#e8c791!important;border-color:#b89968!important}
+.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange,.flatpickr-day.inRange{background:#9b815e!important;color:#101615!important;border-color:#9b815e!important;box-shadow:none!important}
+.flatpickr-day.flatpickr-disabled{color:#647067!important}.day-price{color:#b4bdb3!important}.flatpickr-day.selected .day-price,.flatpickr-day.inRange .day-price{color:#17201b!important}
+.flatpickr-prev-month svg,.flatpickr-next-month svg{fill:#e6d6b8!important}
+@media(max-width:390px){.hero{height:320px}.hero-title{font-size:28px}.amenity img{width:54px;height:54px}.amenity{gap:8px}.amenity-price{font-size:12px}.booking-card{padding:13px}.flatpickr-day{width:42px!important;height:42px!important}}
+</style>
+</head>
+<body>
+
+<div class="booking-app">
+  <section class="hero"><img src="istra-house.png" alt="Istra Village Hills — дом среди леса"><div class="hero-content"><div class="hero-kicker">Отдых среди природы</div><div class="hero-title">ISTRA<br>VILLAGE HILLS</div><p class="hero-sub">Уютный дом • лес • горячая купель</p><a class="hero-link" href="#booking-calendar">Выбрать даты ↓</a></div></section><h1 id="booking-calendar">Выберите даты отдыха</h1>
+
+  <div class="booking-card">
+    <input id="calendarInput" type="text">
+    <div class="booking-info">Выбери даты заезда и выезда</div>
+    <div class="booking-dates" id="selectedDates">Выбери даты</div>
+    <div class="booking-warning" id="warningText"></div>
+  </div>
+
+  <div class="booking-card">
+    <div class="section-title">Добавьте к проживанию</div>
+    <label class="amenity"><img src="istra-sauna.jpg" alt="Баня на дровах"><span class="amenity-main"><span class="amenity-name">Баня на дровах</span><span class="amenity-desc" style="display:block">Один сеанс за проживание</span></span><span class="amenity-price">+8 000 ₽</span><input type="checkbox" id="banya" aria-label="Добавить баню"></label>
+    <label class="amenity amenity-static"><img src="istra-kupel.jpg" alt="Горячая купель"><span class="amenity-main"><span class="amenity-name">Горячая купель</span><span class="amenity-desc" style="display:block">Для вашего отдыха</span></span><span class="amenity-price">Включена</span><input type="checkbox" id="kupel" checked disabled aria-label="Купель включена"></label>
+  </div>
+
+  <div class="booking-card">
+    <div style="font-size:16px; margin-bottom:10px;">Количество гостей</div>
+  <div class="guests-select-wrap">
+
+    <svg class="guests-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+     <select id="guests" class="booking-input guests-select">
+      <option value="1">1 гость</option>
+      <option value="2" selected>2 гостя</option>
+      <option value="3">3 гостя</option>
+      <option value="4">4 гостя</option>
+    </select>
+  </div>
+    <div class="booking-info">
+      Базовая цена указана за 2 гостей.  
+      Доплата за 3-го и 4-го гостя — 1 500 ₽ в сутки за человека.
+    </div>
+  </div>
+
+  <div class="booking-card">
+  <div class="booking-price" id="price">Стоимость: —</div>
+  <div class="booking-info" id="priceDetails"></div>
+  </div>
+
+  <div class="booking-card">
+    <input id="name" class="booking-input" type="text" placeholder="Ваше имя">
+    <input id="comment" class="booking-input" type="text" placeholder="Комментарий (поздний выезд и т.д.)">
+  </div>
+
+  <div style="padding: 0 16px 20px;">
+    <button class="booking-btn" id="bookBtn">Оставить заявку</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener("load", function () {
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  const TELEGRAM_USERNAME = "ksyunmsk";
+
+  const minNights = 2;
+  const holidayMinNights = 3;
+  const priceWeekday = 16000; // Понедельник–среда
+  const priceWeekend = 17000; // Четверг–воскресенье
+  const extraGuestPrice = 1500;
+  const banyaPrice = 8000;
+  const kupelPrice = 0;
+  const discounts = [
+  { nights: 3, percent: 5 },
+  { nights: 5, percent: 7 },
+  { nights: 6, percent: 9 }
+];
+  const specialPrices = {
+  "2026-12-30": { price: 50000, label: "Новогодний тариф 🎄" },
+  "2026-12-31": { price: 50000, label: "Новогодний тариф 🎄" },
+  "2027-01-01": { price: 50000, label: "Новогодний тариф 🎄" },
+  "2027-01-02": { price: 50000, label: "Новогодний тариф 🎄" },
+  "2027-01-03": { price: 50000, label: "Новогодний тариф 🎄" },
+  "2027-01-04": { price: 27000, label: "Новогодний тариф 🎄" },
+  "2027-01-05": { price: 27000, label: "Новогодний тариф 🎄" },
+  "2027-01-06": { price: 27000, label: "Новогодний тариф 🎄" },
+  "2027-01-07": { price: 27000, label: "Новогодний тариф 🎄" },
+  "2027-01-08": { price: 25000, label: "Новогодний тариф 🎄" },
+  "2027-01-09": { price: 25000, label: "Новогодний тариф 🎄" },
+  "2027-03-08": { price: 19000, label: "Праздничный тариф 🌸" },
+  "2027-02-14": { price: 19000, label: "День влюбленных 🌸" },
+  "2027-02-23": { price: 19000, label: "Праздничный тариф 🌸" },
+  "2026-06-13": { price: 18000 }
+};
+
+  function isHolidayMinStay(checkin, checkout) {
+    if (!checkin || !checkout) return false;
+    let current=new Date(checkin.getFullYear(),checkin.getMonth(),checkin.getDate(),12);
+    while(current<checkout){
+      const m=current.getMonth(), d=current.getDate();
+      if((m===11&&(d===30||d===31))||(m===0&&d>=1&&d<=7)) return true;
+      current.setDate(current.getDate()+1);
+    }
+    return false;
+  }
+  function requiredMinNights(){
+    return isHolidayMinStay(checkin,checkout)?holidayMinNights:minNights;
+  }
+
+  function getDiscountPercent(nights) {
+  let percent = 0;
+
+  discounts.forEach(d => {
+    if (nights >= d.nights) {
+      percent = d.percent;
+    }
+  });
+
+  return percent;
+}
+  function getNightPrice(date) {
+  const key = toYMD(date);
+  if (specialPrices[key]?.price != null) return specialPrices[key].price;
+  const day = date.getDay();
+  return (day >= 1 && day <= 3) ? priceWeekday : priceWeekend;
+}
+function getPriceDetails() {
+  if (!checkin || !checkout) return "";
+
+  const labels = new Set();
+
+  let current = new Date(
+    checkin.getFullYear(),
+    checkin.getMonth(),
+    checkin.getDate(),
+    12, 0, 0
+  );
+
+  while (current < checkout) {
+    const key = toYMD(current);
+
+    if (specialPrices[key]?.label) {
+      labels.add(specialPrices[key].label);
+    }
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return [...labels].join("\n");
+}
+
+  const selectedDatesEl = document.getElementById("selectedDates");
+  const warningEl = document.getElementById("warningText");
+  const priceEl = document.getElementById("price");
+  const priceDetailsEl = document.getElementById("priceDetails");
+  const banyaEl = document.getElementById("banya");
+  const kupelEl = document.getElementById("kupel");
+  const guestsEl = document.getElementById("guests");
+  const bookBtn = document.getElementById("bookBtn");
+  const nameEl = document.getElementById("name");
+  const commentEl = document.getElementById("comment");
+
+  let fp = null;
+  let checkin = null;
+  let checkout = null;
+  let selectedNights = 0;
+
+  function parseLocalDate(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  }
+
+  function toYMD(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function formatDate(date) {
+    const d = String(date.getDate()).padStart(2, "0");
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const y = date.getFullYear();
+    return `${d}.${m}.${y}`;
+  }
+
+  function expandDates(startStr, endStr) {
+    const dates = [];
+    let current = parseLocalDate(startStr);
+    const end = parseLocalDate(endStr);
+
+    while (current <= end) {
+      dates.push(toYMD(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  }
+
+  function getTotal() {
+  const guests = Number(guestsEl.value || 2);
+  const extraGuests = Math.max(0, guests - 2);
+
+  let total = 0;
+
+  let current = new Date(
+    checkin.getFullYear(),
+    checkin.getMonth(),
+    checkin.getDate(),
+    12, 0, 0
+  );
+
+  while (current < checkout) {
+    total += getNightPrice(current);
+
+    // доплата за гостей
+    total += extraGuests * extraGuestPrice;
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  // скидка
+  const discountPercent = getDiscountPercent(selectedNights);
+  if (discountPercent > 0) {
+    total = total * (1 - discountPercent / 100);
+  }
+
+  // баня
+  if (banyaEl.checked) total += banyaPrice;
+  if (kupelEl.checked) total += kupelPrice;
+
+  return Math.round(total);
+}
+
+  function resetPrice() {
+  priceEl.innerText = "Стоимость: —";
+  priceDetailsEl.innerText = "";
+}
+
+  function updateBookingState() {
+    if (!checkin || !checkout) {
+      selectedNights = 0;
+      resetPrice();
+      warningEl.innerText = "";
+      bookBtn.disabled = false;
+      return;
+    }
+
+    selectedNights = Math.round((checkout.getTime() - checkin.getTime()) / 86400000);
+
+    const minRequired = requiredMinNights();
+
+    if (selectedNights < minRequired) {
+      resetPrice();
+      warningEl.innerText = isHolidayMinStay(checkin, checkout)
+        ? "Минимальный срок бронирования — 3 ночи"
+        : "Минимальный срок бронирования — 2 ночи";
+      bookBtn.disabled = true;
+      return;
+    }
+
+    priceEl.innerText = "Стоимость: " + getTotal().toLocaleString("ru-RU") + " ₽";
+   let detailsText = getPriceDetails();
+
+const discountPercent = getDiscountPercent(selectedNights);
+if (discountPercent > 0) {
+  detailsText += (detailsText ? "\n" : "") +
+    `Скидка ${discountPercent}% за ${selectedNights} ночи ✨`;
+}
+
+priceDetailsEl.innerText = detailsText;
+    warningEl.innerText = "";
+    bookBtn.disabled = false;
+  }
+
+  function initCalendar(disabledDates) {
+    if (typeof flatpickr === "undefined") {
+      selectedDatesEl.innerText = "Календарь не загрузился";
+      return;
+    }
+
+    if (fp) fp.destroy();
+
+    fp = flatpickr("#calendarInput", {
+      mode: "range",
+      inline: true,
+      minDate: "today",
+      dateFormat: "Y-m-d",
+      disable: disabledDates || [],
+      locale: flatpickr.l10ns.ru,
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+
+    if (
+        dayElem.classList.contains("prevMonthDay") ||
+        dayElem.classList.contains("nextMonthDay")
+    ) return;
+
+    if (dayElem.classList.contains("flatpickr-disabled")) return;
+
+    const price = getNightPrice(dayElem.dateObj);
+
+    const priceDiv = document.createElement("div");
+priceDiv.className = "day-price";
+
+priceDiv.innerText =
+    (price % 1000 === 0)
+        ? (price / 1000) + " тыс."
+        : (price / 1000).toFixed(1).replace(".", ",") + " тыс.";
+
+dayElem.appendChild(priceDiv);
+
+},
+      onChange(selectedDates) {
+        warningEl.innerText = "";
+
+        if (selectedDates.length === 0) {
+          checkin = null;
+          checkout = null;
+          selectedDatesEl.innerText = "Выбери даты";
+          updateBookingState();
+          return;
+        }
+
+        if (selectedDates.length === 1) {
+          checkin = new Date(
+            selectedDates[0].getFullYear(),
+            selectedDates[0].getMonth(),
+            selectedDates[0].getDate(),
+            12, 0, 0
+          );
+          checkout = null;
+          selectedDatesEl.innerText =
+            "Заезд: " + formatDate(checkin) + "\nТеперь выбери дату выезда";
+          resetPrice();
+          bookBtn.disabled = false;
+          return;
+        }
+
+        if (selectedDates.length === 2) {
+          checkin = new Date(
+            selectedDates[0].getFullYear(),
+            selectedDates[0].getMonth(),
+            selectedDates[0].getDate(),
+            12, 0, 0
+          );
+          checkout = new Date(
+            selectedDates[1].getFullYear(),
+            selectedDates[1].getMonth(),
+            selectedDates[1].getDate(),
+            12, 0, 0
+          );
+
+          selectedDatesEl.innerText =
+            "Заезд: " + formatDate(checkin) + "\nВыезд: " + formatDate(checkout);
+
+          updateBookingState();
+        }
+      }
+    });
+  }
+
+  async function loadBusyDates() {
+
+    const res = await fetch(
+        "https://www.avito.ru/calendars-export/77/70/7771462570.ics"
+    );
+
+    if (!res.ok) {
+        throw new Error("Не удалось загрузить календарь");
+    }
+
+    const text = await res.text();
+    console.log(text);
+    const busy = [];
+
+    const events = text.split("BEGIN:VEVENT");
+
+    events.forEach(event => {
+
+        const startMatch = event.match(/DTSTART.*:(\d{8})/);
+        const endMatch = event.match(/DTEND.*:(\d{8})/);
+
+        if (!startMatch || !endMatch) return;
+
+        const start =
+            startMatch[1].slice(0,4) + "-" +
+            startMatch[1].slice(4,6) + "-" +
+            startMatch[1].slice(6,8);
+
+        const endDate = new Date(
+            endMatch[1].slice(0,4),
+            endMatch[1].slice(4,6) - 1,
+            endMatch[1].slice(6,8)
+        );
+
+        // DTEND = день выезда, поэтому убираем один день
+        endDate.setDate(endDate.getDate() - 1);
+
+        const end =
+            endDate.getFullYear() + "-" +
+            String(endDate.getMonth() + 1).padStart(2, "0") + "-" +
+            String(endDate.getDate()).padStart(2, "0");
+
+        busy.push(...expandDates(start, end));
+
+    });
+
+  console.log(busy);
+    return [...new Set(busy)];
+
+}
+  
+flatpickr.l10ns.ru.firstDayOfWeek = 1;
+
+selectedDatesEl.innerText = "Загружаем свободные даты…";
+
+loadBusyDates()
+    .then((busyDates) => {
+      initCalendar(busyDates);
+      selectedDatesEl.innerText = "Выбери даты";
+      warningEl.innerText = busyDates.length ? "" : "Занятые даты не найдены";
+    })
+    .catch((e) => {
+      console.error(e);
+      selectedDatesEl.innerText = "Выбери даты";
+      warningEl.innerText = "Не удалось загрузить занятые даты";
+    });
+
+  banyaEl.addEventListener("change", updateBookingState);
+  kupelEl.addEventListener("change", updateBookingState);
+  guestsEl.addEventListener("change", updateBookingState);
+
+  bookBtn.addEventListener("click", function () {
+    bookBtn.classList.remove("tap-anim");
+    void bookBtn.offsetWidth;
+    bookBtn.classList.add("tap-anim");
+  });
+
+  bookBtn.onclick = () => {
+    if (!checkin || !checkout) {
+      alert("Выбери даты заезда и выезда");
+      return;
+    }
+
+    const minRequired = requiredMinNights();
+
+    if (selectedNights < minRequired) {
+      warningEl.innerText = isHolidayMinStay(checkin, checkout)
+        ? "Минимальный срок бронирования — 3 ночи"
+        : "Минимальный срок бронирования — 2 ночи";
+      return;
+    }
+
+    const name = nameEl.value.trim() || "—";
+    const comment = commentEl.value.trim() || "—";
+    const guests = guestsEl.value;
+    const total = getTotal();
+
+    const text =
+`Здравствуйте! 👋
+
+Хочу забронировать дом 🌲
+
+Заезд: ${formatDate(checkin)}
+Выезд: ${formatDate(checkout)}
+Ночей: ${selectedNights}
+Гостей: ${guests}
+${banyaEl.checked ? "Баня: да (+8 000 ₽)\n" : ""}${kupelEl.checked ? "Купель: да\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
+
+Имя: ${name}
+Комментарий: ${comment}`;
+
+    const url = `https://t.me/${TELEGRAM_USERNAME}?text=` + encodeURIComponent(text);
+    window.open(url, "_blank");
+  };
+});
+</script>
+
+
+</body>
+</html>
