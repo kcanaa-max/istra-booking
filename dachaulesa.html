@@ -444,6 +444,7 @@ function getPriceDetails() {
   const nameEl = document.getElementById("name");
   const commentEl = document.getElementById("comment");
 
+  let calendarReady = false;
   let fp = null;
   let checkin = null;
   let checkout = null;
@@ -525,7 +526,7 @@ function getPriceDetails() {
       selectedNights = 0;
       resetPrice();
       warningEl.innerText = "";
-      bookBtn.disabled = false;
+      bookBtn.disabled = !calendarReady;
       return;
     }
 
@@ -553,7 +554,7 @@ if (discountPercent > 0) {
 
 priceDetailsEl.innerText = detailsText;
     warningEl.innerText = "";
-    bookBtn.disabled = false;
+    bookBtn.disabled = !calendarReady;
   }
 
   function initCalendar(disabledDates) {
@@ -615,7 +616,7 @@ dayElem.appendChild(priceDiv);
           selectedDatesEl.innerText =
             "Заезд: " + formatDate(checkin) + "\nТеперь выбери дату выезда";
           resetPrice();
-          bookBtn.disabled = false;
+          bookBtn.disabled = !calendarReady;
           return;
         }
 
@@ -642,72 +643,33 @@ dayElem.appendChild(priceDiv);
     });
   }
 
+  // Занятость загружается из локального JSON, обновляемого GitHub Actions.
   async function loadBusyDates() {
+    const res = await fetch('./dacha-busy-dates.json?t=' + Date.now(), {cache:'no-store'});
+    if (!res.ok) throw new Error('Нет файла занятости');
+    const data = await res.json();
+    if (!Array.isArray(data.busy) || !data.updated_at) throw new Error('Неверные данные календаря');
+    const age = Date.now() - Date.parse(data.updated_at);
+    if (!Number.isFinite(age) || age < -3600000 || age > 24*3600000)
+      throw new Error('Календарь давно не обновлялся');
+    return data.busy;
+  }
 
-    const res = await fetch(
-        "https://sutochno.ru/calendar/ical/f285a2f4019ed66387c4b0217d04e045e89b208.ics"
-    );
-
-    if (!res.ok) {
-        throw new Error("Не удалось загрузить календарь");
-    }
-
-    const text = await res.text();
-    console.log(text);
-    const busy = [];
-
-    const events = text.split("BEGIN:VEVENT");
-
-    events.forEach(event => {
-
-        const startMatch = event.match(/DTSTART.*:(\d{8})/);
-        const endMatch = event.match(/DTEND.*:(\d{8})/);
-
-        if (!startMatch || !endMatch) return;
-
-        const start =
-            startMatch[1].slice(0,4) + "-" +
-            startMatch[1].slice(4,6) + "-" +
-            startMatch[1].slice(6,8);
-
-        const endDate = new Date(
-            endMatch[1].slice(0,4),
-            endMatch[1].slice(4,6) - 1,
-            endMatch[1].slice(6,8)
-        );
-
-        // DTEND = день выезда, поэтому убираем один день
-        endDate.setDate(endDate.getDate() - 1);
-
-        const end =
-            endDate.getFullYear() + "-" +
-            String(endDate.getMonth() + 1).padStart(2, "0") + "-" +
-            String(endDate.getDate()).padStart(2, "0");
-
-        busy.push(...expandDates(start, end));
-
-    });
-
-  console.log(busy);
-    return [...new Set(busy)];
-
-}
-  
-flatpickr.l10ns.ru.firstDayOfWeek = 1;
-
-selectedDatesEl.innerText = "Загружаем свободные даты…";
-
-loadBusyDates()
-    .then((busyDates) => {
-      initCalendar(busyDates);
-      selectedDatesEl.innerText = "Выбери даты";
-      warningEl.innerText = busyDates.length ? "" : "Занятые даты не найдены";
-    })
-    .catch((e) => {
-      console.error(e);
-      selectedDatesEl.innerText = "Выбери даты";
-      warningEl.innerText = "Не удалось загрузить занятые даты";
-    });
+  flatpickr.l10ns.ru.firstDayOfWeek = 1;
+  selectedDatesEl.innerText = 'Загружаем занятые даты…';
+  bookBtn.disabled = true;
+  loadBusyDates().then((busyDates) => {
+    initCalendar(busyDates);
+    calendarReady = true;
+    selectedDatesEl.innerText = 'Выбери даты';
+    warningEl.innerText = '';
+    bookBtn.disabled = !calendarReady;
+  }).catch((e) => {
+    console.error(e);
+    selectedDatesEl.innerText = 'Календарь временно недоступен';
+    warningEl.innerText = 'Не удалось проверить занятость. Напишите владельцу для уточнения свободных дат.';
+    bookBtn.disabled = true;
+  });
 
   chanEl.addEventListener("change", () => {
     if (!chanEl.checked) greeneryEl.checked = false;
@@ -725,6 +687,7 @@ loadBusyDates()
   });
 
   bookBtn.onclick = () => {
+    if (!calendarReady) { alert('Занятость пока не проверена'); return; }
     if (!checkin || !checkout) {
       alert("Выбери даты заезда и выезда");
       return;
