@@ -324,7 +324,7 @@
 
   <div class="booking-card">
     <div class="section-title">Добавьте к проживанию</div>
-    <label class="amenity"><img src="istra-sauna.jpg" alt="Баня на дровах"><span class="amenity-main"><span class="amenity-name">Баня на дровах</span><span class="amenity-desc" style="display:block">Один сеанс за проживание</span></span><span class="amenity-price">+8 000 ₽</span><input type="checkbox" id="banya" aria-label="Добавить баню"></label>
+    <label class="amenity"><img src="istra-sauna.jpg" alt="Баня на дровах"><span class="amenity-main"><span class="amenity-name">Баня на дровах</span><span class="amenity-desc" style="display:block">Один сеанс за проживание</span></span><span class="amenity-price">+6 000 ₽</span><input type="checkbox" id="banya" aria-label="Добавить баню"></label>
     <label class="amenity amenity-static"><img src="istra-kupel.jpg" alt="Горячая купель"><span class="amenity-main"><span class="amenity-name">Горячая купель</span><span class="amenity-desc" style="display:block">На всё время проживания</span></span><span class="amenity-price">Включена</span><input type="checkbox" id="kupel" checked disabled aria-label="Купель включена"></label>
   </div>
 
@@ -381,7 +381,7 @@ window.addEventListener("load", function () {
   const priceWeekday = 16000; // Понедельник–среда
   const priceWeekend = 17000; // Четверг–воскресенье
   const extraGuestPrice = 1500;
-  const banyaPrice = 8000;
+  const banyaPrice = 6000;
   const kupelPrice = 0;
   const discounts = [
   { nights: 3, percent: 5 },
@@ -800,7 +800,7 @@ loadBusyDates()
 Выезд: ${formatDate(checkout)}
 Ночей: ${selectedNights}
 Гостей: ${guests}
-${banyaEl.checked ? "Баня: да (+8 000 ₽)\n" : ""}${kupelEl.checked ? "Купель: да\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
+${banyaEl.checked ? "Баня: да (+6 000 ₽)\n" : ""}${kupelEl.checked ? "Купель: да\n" : ""}Стоимость: ${total.toLocaleString("ru-RU")} ₽
 
 Имя: ${name}
 Комментарий: ${comment}`;
