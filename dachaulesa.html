@@ -651,7 +651,7 @@ function getPriceDetails() {
     if (selectedNights < minRequired) {
       resetPrice();
       warningEl.innerText = isHolidayMinStay(checkin, checkout)
-        ? "Минимальный срок бронирования — 3 ночи"
+        ? "Минимальный срок бронирования — 2 ночи"
         : "Минимальный срок бронирования — 2 ночи";
       bookBtn.disabled = true;
       return;
@@ -871,7 +871,7 @@ dayElem.appendChild(priceDiv);
 
     if (selectedNights < minRequired) {
       warningEl.innerText = isHolidayMinStay(checkin, checkout)
-        ? "Минимальный срок бронирования — 3 ночи"
+        ? "Минимальный срок бронирования — 2 ночи"
         : "Минимальный срок бронирования — 2 ночи";
       return;
     }
